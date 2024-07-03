@@ -1,0 +1,122 @@
+[
+    {
+        "Numero": "1",
+        "Nombre": "Juan Pérez",
+        "Puntos": "0",
+        "Tiempo": "45,10"
+    },
+    {
+        "Numero": "2",
+        "Nombre": "Ana Sánchez",
+        "Puntos": "8",
+        "Tiempo": "57,30"
+    },
+    {
+        "Numero": "3",
+        "Nombre": "Carlos García",
+        "Puntos": "ELIM",
+        "Tiempo": "-"
+    },
+    {
+        "Numero": "4",
+        "Nombre": "María Rodríguez",
+        "Puntos": "5",
+        "Tiempo": "60,10"
+    },
+    {
+        "Numero": "5",
+        "Nombre": "Pedro Martínez",
+        "Puntos": "7",
+        "Tiempo": "55,30"
+    },
+    {
+        "Numero": "6",
+        "Nombre": "Isabel Fernández",
+        "Puntos": "ELIM",
+        "Tiempo": "-"
+    },
+    {
+        "Numero": "7",
+        "Nombre": "Javier González",
+        "Puntos": "2",
+        "Tiempo": "70,10"
+    },
+    {
+        "Numero": "8",
+        "Nombre": "Laura López",
+        "Puntos": "9",
+        "Tiempo": "50,30"
+    },
+    {
+        "Numero": "9",
+        "Nombre": "Francisco Torres",
+        "Puntos": "ELIM",
+        "Tiempo": "-"
+    },
+    {
+        "Numero": "10",
+        "Nombre": "Patricia Ramírez",
+        "Puntos": "1",
+        "Tiempo": "75,10"
+    },
+    {
+        "Numero": "11",
+        "Nombre": "Luis Morales",
+        "Puntos": "10",
+        "Tiempo": "45,30"
+    },
+    {
+        "Numero": "12",
+        "Nombre": "Carmen Guzmán",
+        "Puntos": "ELIM",
+        "Tiempo": "-"
+    },
+    {
+        "Numero": "13",
+        "Nombre": "Ricardo Peña",
+        "Puntos": "0",
+        "Tiempo": "80,10"
+    },
+    {
+        "Numero": "14",
+        "Nombre": "Sofía Castillo",
+        "Puntos": "8",
+        "Tiempo": "40,30"
+    },
+    {
+        "Numero": "15",
+        "Nombre": "Ernesto Herrera",
+        "Puntos": "ELIM",
+        "Tiempo": "-"
+    },
+    {
+        "Numero": "16",
+        "Nombre": "Teresa Aguilar",
+        "Puntos": "3",
+        "Tiempo": "85,10"
+    },
+    {
+        "Numero": "17",
+        "Nombre": "Miguel Silva",
+        "Puntos": "6",
+        "Tiempo": "35,30"
+    },
+    {
+        "Numero": "18",
+        "Nombre": "Rosa Mendoza",
+        "Puntos": "ELIM",
+        "Tiempo": "-"
+    },
+    {
+        "Numero": "19",
+        "Nombre": "Fernando Ruiz",
+        "Puntos": "4",
+        "Tiempo": "90,10"
+    },
+    {
+        "Numero": "20",
+        "Nombre": "Susana Jiménez",
+        "Puntos": "ELIM",
+        "Tiempo": "-"
+    }
+]

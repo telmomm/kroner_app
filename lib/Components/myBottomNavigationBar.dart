@@ -6,26 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'package:get/get.dart';
-
 import 'dart:typed_data';
+
+import '../../../Utils/controller.dart';
 
 class MyBottomNavigationBar extends StatefulWidget {
   const MyBottomNavigationBar({Key? key}) : super(key: key);
-
+ 
   @override
   _MyBottomNavigationBarState createState() => _MyBottomNavigationBarState();
    
 } 
 
-class DataController extends GetxController {
-  RxInt F1 = 0.obs;
-  RxInt F2 = 0.obs;
-}
 
 class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   // Some state management stuff
-  String bleDeviceName = "TelmoMM";
-  final dataController = Get.put(DataController());
+  final TimeController timeController = Get.find();
+  final Connections connections = Get.find();
 
   // Bluetooth related variables
   final flutterReactiveBle = FlutterReactiveBle();
@@ -33,24 +30,16 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   late StreamSubscription<ConnectionStateUpdate> _connection;
   // Define your stream here
   Stream<CharacteristicValue> characteristicValueStream = Stream<CharacteristicValue>.empty();
-
   late QualifiedCharacteristic rx;
-  RxString status = 'not connected'.obs;
-  RxString temperature = '0'.obs;
-  RxString connectionStatus = "disconnected".obs;
-
   // These are the UUIDs of your device
-  final serviceId = '19B10000-E8F2-537E-4F6C-D104768A1214';
+  final serviceId = '19b10000-e8f2-537e-4f6c-d104768a1214';
   final serviceUuid = Uuid.parse('19B10000-E8F2-537E-4F6C-D104768A1214');
   final characteristicUuid = Uuid.parse('b444ea9a-a1b8-11ee-8c90-0242ac120002');
-
-  final uuidTest = "19B10000-E8F2-537E-4F6C-D104768A1214";
-  final Uuid characteristicUuidOLD =
-      Uuid.parse("19B10001-E8F2-537E-4F6C-D104768A1214");
 
   @override
   void initState() {
     super.initState();
+    //stopScan();
     startScan();
   }
 
@@ -62,17 +51,20 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   }
 
 // '84121AB4-E9D6-45B3-FF8A-9C24FB2BDD59'
-  void connect(Uuid deviceIdd) async {
-    status.value = 'connecting...';
+  void connect(deviceIdd) async {
+    //_connection.cancel();
+    //stopScan();
+    //String deviceTestId = '84121AB4-E9D6-45B3-FF8A-9C24FB2BDD59';
+    //status.value = 'connecting...';
     // get rx
     rx = QualifiedCharacteristic(
-      serviceId: Uuid.parse('19b10000-e8f2-537e-4f6c-d104768a1214'),            
-      characteristicId: Uuid.parse('b444ea9a-a1b8-11ee-8c90-0242ac120002'), 
-      deviceId: '84121AB4-E9D6-45B3-FF8A-9C24FB2BDD59'
+      serviceId: Uuid.parse(serviceId), //Uuid.parse('19b10000-e8f2-537e-4f6c-d104768a1214'),            
+      characteristicId: characteristicUuid,//Uuid.parse('b444ea9a-a1b8-11ee-8c90-0242ac120002'), 
+      deviceId: deviceIdd.toString(),//'84121AB4-E9D6-45B3-FF8A-9C24FB2BDD59'
     );
 
     _connection = flutterReactiveBle.connectToDevice(
-      id:'84121AB4-E9D6-45B3-FF8A-9C24FB2BDD59',
+      id: deviceIdd.toString(),//'84121AB4-E9D6-45B3-FF8A-9C24FB2BDD59',
       servicesWithCharacteristicsToDiscover: {serviceUuid: [serviceUuid]},
       connectionTimeout: const Duration(seconds: 2),
       ).listen(
@@ -80,14 +72,14 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           print('ConnectionState for device $deviceIdd : ${state.connectionState}');
           
           if (state.connectionState == DeviceConnectionState.connected) {    
-            connectionStatus.value = "connected";     
-            status.value = 'connected!';
+            connections.ble.value = "connected";     
+            //status.value = 'connected!';
             print("Connected");
           
             print("Looking for services");
             try {
-              final discoverServices = await flutterReactiveBle.discoverAllServices('84121AB4-E9D6-45B3-FF8A-9C24FB2BDD59');
-              List<Service> services = await flutterReactiveBle.getDiscoveredServices('84121AB4-E9D6-45B3-FF8A-9C24FB2BDD59');
+              final discoverServices = await flutterReactiveBle.discoverAllServices(deviceIdd);///*'84121AB4-E9D6-45B3-FF8A-9C24FB2BDD59');
+              List<Service> services = await flutterReactiveBle.getDiscoveredServices(deviceIdd);//'84121AB4-E9D6-45B3-FF8A-9C24FB2BDD59');
             
               for (Service service in services) {
                 print('Service ID: ${service.id}');
@@ -103,11 +95,13 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
                   final response = await flutterReactiveBle.readCharacteristic(rx);
                   final F1 = await decodeData(response, 0);
                   final F2 = await decodeData(response, 4);
-                  //print('F1: $F1 - F2: $F2');
+                  final F3 = await decodeData(response, 8);
+                  //print('F1: $F1 - F2: $F2' - F3: $F3');
 
                   // Actualiza los valores de F1 y F2
-                  dataController.F1.value = F1;
-                  dataController.F2.value = F2;
+                  timeController.timeF1.value = F1;
+                  timeController.timeF2.value = F2;
+                  timeController.timeF3.value = F3;
 
                 } catch (e) {
                   print(e);
@@ -148,15 +142,15 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
               print('Error discovering services: $e');
             }
           } else {
-            //print(state.connectionState);
-            //connectionStatus.value = "disconnected";
-            connectionStatus.value = state.connectionState.toString();
+            connections.ble.value = state.connectionState.toString();
             print('Estado: ');
-            print(connectionStatus.value);
+            print(connections.ble.value);
           }
         },
-        onError: (Object e) =>
+        onError: (Object e) => {
           print('Connecting to device $deviceIdd resulted in error $e'),
+          _connection.cancel()
+          }
         );
 
         // Descubre los servicios después de la conexión
@@ -202,10 +196,21 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
 
   }
 
+  void stopScan() {
+    _scanStream?.cancel();
+  }
+
   void startScan() async {
-    // Platform permissions handling stuff
+    connections.ble.value = "connecting";
+    //stopScan();
     bool permGranted = false;
+    int maxAttempts = 5; // Max number of attempts
+    int attempts = 0; // Attempts counter
+    int timeAttempts = 2; //Time between attempts
     PermissionStatus permission;
+    String deviceName = "";
+    String deviceId = "";
+
     if (Platform.isAndroid) {
       print('Plataforma detectada: Android');
       permission = await LocationPermissions().requestPermissions();
@@ -218,21 +223,71 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
       print('Plataforma detectada no compatible');
       permGranted = false;
     }
+    
+    // Repite el escaneo hasta que se encuentre el dispositivo o se alcance el número máximo de intentos
+    do {
+      if (permGranted) {
+        _scanStream = flutterReactiveBle.scanForDevices(withServices: []).listen((device) {
+          //print(device.id);
+          if (device.name == connections.bleDeviceName.value) {
+            deviceName = device.name;
+            deviceId = device.id;
+            //print('Device found: ${device.name} - ${device.id}');
+            //print(device.serviceUuids);
+            //stopScan();
+          }
+          //stopScan();
+        });
 
-    connect(serviceUuid);
-  
+        // Espera un tiempo antes de verificar si se encontró el dispositivo
+        await Future.delayed(Duration(seconds: timeAttempts)); // Ajusta este tiempo según sea necesario
+
+        if (deviceName == connections.bleDeviceName.value) {
+          print('Device found: ${deviceName}');
+          stopScan();
+          break; // Sal del bucle si se encuentra el dispositivo
+        } else {
+          print('Device not found, retrying...');
+        }
+      }
+
+      print("Attempts: $attempts");
+      attempts++;
+      
+      if (attempts >= maxAttempts) {
+        print('Max attempts reached, stopping scan.');
+        stopScan();
+        break; // Sal del bucle si se alcanza el número máximo de intentos
+      }
+      stopScan();
+      print("Device Name: $deviceName");
+      print("Device ID: $deviceId");
+    } while (deviceId == "" && deviceName != connections.bleDeviceName.value);
+
+    attempts = 0; // Reset the attempts counter
+
+    if (deviceId != "" && deviceName == connections.bleDeviceName.value) {
+      print("Connecting...");
+      connect(deviceId);
+    } else {
+      connections.ble.value = "disconnected";
+      
+    }
+    print("TEETET");
+
     /*
     if(permGranted){
       _scanStream = flutterReactiveBle.scanForDevices(withServices: []).listen((device) {
-        print('${device.id} ${device.name}');
-        if(device.name == "Kroner-Hub"){
-          connect(serviceUuid);
+        if(device.name == connections.bleDeviceName.value){
+          connections.bleDeviceId.value = device.id;
+          stopScan();
         }
       });
-    }
+      print('Device found: ${connections.bleDeviceId.value}');
+      
+      //connect(connections.bleDeviceId.value);  
+    } 
     */
-    
-
   }
 
   @override
@@ -240,16 +295,21 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     return Obx(() {
       Color color;
       String text;
-      switch (connectionStatus.value) {
+      String connectionState = connections.ble.value.toString().split('.').last;
+      switch (connectionState) {
         case 'connected':
           color = Colors.green;
           text = 'Conectado';
           break;
         case 'connecting':
-          color = Colors.yellow;
+          color = Colors.yellowAccent;
           text = 'Conectando...';
           break;
         case 'disconnected':
+          color = Colors.red;
+          text = 'Desconectado (Pulse para reconectar)';
+          break;
+        case 'disconnecting':
           color = Colors.red;
           text = 'Desconectado';
           break;
@@ -257,12 +317,17 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           color = Colors.grey;
           text = 'Pulse para reconectar';
       }
+      
 
       return BottomAppBar(
         color: color,
         child: InkWell(
           onTap: () {
-            startScan();
+            //stopScan();
+            if (connectionState == 'disconnected'){
+              startScan();
+            }
+            
           },
           child: Padding(
             padding: EdgeInsets.all(10.0),

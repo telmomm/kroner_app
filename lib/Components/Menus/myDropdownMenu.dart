@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const List<String> list = <String>['A2', 'Dos Fases', 'Dos Fases(*)', 'Desempate'];
+const List<String> list = <String>['A1', 'A2', 'Dos Fases', 'Dos Fases(*)'];
 
 class myDropdownMenu extends StatefulWidget {
   const myDropdownMenu({Key? key}) : super(key: key);
